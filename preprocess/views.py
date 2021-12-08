@@ -1,11 +1,8 @@
 import os
+
 from django.http.response import HttpResponseRedirect
-
-from django.views.generic.edit import FormView
-from django.http import HttpResponse
 from django.shortcuts import render
-
-from Bio import SeqIO
+from Bio import SeqIO, SeqRecord
 
 from genGroup.settings import MEDIA_ROOT
 
@@ -22,9 +19,9 @@ def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(
-                request.FILES['file'], form.cleaned_data.get('title'))
-            request.session['files'] = form.cleaned_data.get('title')
+            title = form.cleaned_data.get('title')
+            handle_uploaded_file(request.FILES['file'], title)
+            request.session['files'] = title
             return HttpResponseRedirect('results')
     else:
         form = UploadFileForm()
@@ -65,3 +62,12 @@ def preprocess(fastqfile):
         counts[seq_len] += 1
 
     return counts
+
+
+def filter_out(fastqfile, seq_len):
+    filtered_records = []
+    for record in SeqIO.parse(fastqfile, "fastq"):
+        if len(record.seq) == seq_len:
+            filtered_records.append(record.seq)
+
+    return filtered_records

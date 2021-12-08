@@ -10,3 +10,4 @@ class UploadFileForm(forms.Form):
 
 class SelectFileForm(forms.Form):
     files = forms.FilePathField(path=settings.MEDIA_ROOT, match=".fastq")
+    sequence_length = forms.IntegerField()
