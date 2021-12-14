@@ -1,0 +1,12 @@
+<table id="sequences-table" border="1">
+    <tr>
+        <th>Number</th>
+        <th>Sequence</th>
+    </tr>
+    {% for seq in sequences %}
+    <tr>
+        <td>{{forloop.counter0}}</th>
+        <td>{{seq}}</th>
+    </tr>
+    {% endfor %}
+</table>

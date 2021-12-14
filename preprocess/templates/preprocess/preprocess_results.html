@@ -1,0 +1,35 @@
+<script>
+    function showResultsTable() {
+        var x = document.getElementById("results-table");
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        } else {
+          x.style.display = "none";
+        }
+      } 
+</script>
+
+<form action="{% url 'preprocess:preprocess_results' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Run clustering"></input>
+</form>
+
+<button onclick="showResultsTable()">Show preprocess results</button>
+
+<table id="results-table" style="display:none" border="1">
+    <tr>
+        <th>Sequence length</th>
+        <th>Occurences</th>
+    </tr>
+    {% for k,v in result.items %}
+    <tr>
+        <td>{{k}}</th>
+        <td>{{v}}</th>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+<br>
+<br>

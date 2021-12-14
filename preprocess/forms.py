@@ -10,4 +10,12 @@ class UploadFileForm(forms.Form):
 
 class SelectFileForm(forms.Form):
     files = forms.FilePathField(path=settings.MEDIA_ROOT, match=".fastq")
-    sequence_length = forms.IntegerField()
+
+
+class SelectSequenceLength(forms.Form):
+    sequence_length = forms.ChoiceField(required=False)
+
+    def __init__(self, given_choices, *args, **kwargs):
+        super(SelectSequenceLength, self).__init__(*args, **kwargs)
+        self.fields['sequence_length'] = forms.ChoiceField(
+            choices=[(k, str(k)) for k in given_choices], required=False)

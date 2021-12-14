@@ -19,6 +19,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('clustering/', include('clustering.urls')),
+    path('results/', include('results.urls')),
     path('preprocess/', include('preprocess.urls')),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
