@@ -1,5 +1,5 @@
 <form action="{% url 'preprocess:select_file' %}" method="post">
     {% csrf_token %}
-    {{ form }}
+    {{ form.as_p }}
     <input type="submit" value="Submit"></input>
 </form>

@@ -11,7 +11,7 @@
 
 <form action="{% url 'preprocess:preprocess_results' %}" method="post">
     {% csrf_token %}
-    {{ form }}
+    {{ form.as_p }}
     <input type="submit" value="Run clustering"></input>
 </form>
 
@@ -29,6 +29,35 @@
     </tr>
     {% endfor %}
 </table>
+
+<table id="distances-results-table" style="display:block" border="1">
+    <tr>
+        <th>Result pair</th>
+        <th>Distance</th>
+    </tr>
+    {% for k,v in results_distances.items %}
+    <tr>
+        <td>{{k}}</th>
+        <td>{{v}}</th>
+    </tr>
+    {% endfor %}
+</table>
+
+{% for id, val in distances.items %}
+<table class="distances-table" style="display:block" border="1">
+    <caption>{{id}}</caption>
+    <tr>
+        <th>Distance</th>
+        <th>Number of occurrences</th>
+    </tr>
+    {% for k,v in val.items %}
+    <tr>
+        <td>{{k}}</th>
+        <td>{{v}}</th>
+    </tr>
+    {% endfor %}
+</table>
+{% endfor %}
 
 <br>
 <br>
