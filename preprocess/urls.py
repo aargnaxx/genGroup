@@ -6,5 +6,4 @@ app_name = 'preprocess'
 urlpatterns = [
     path('', views.select_file, name='select_file'),
     path('results', views.preprocess_results, name='preprocess_results'),
-    path('upload', views.upload_file, name='upload_file')
 ]

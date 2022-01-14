@@ -1,2 +1,4 @@
 biopython==1.79
 Django==3.2.9
+djangorestframework==3.13.1
+django-cors-headers==3.11.0
