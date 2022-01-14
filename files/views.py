@@ -21,7 +21,7 @@ class FileView(APIView):
     def get(self, request, *args, **kwargs):
         path = os.path.join(MEDIA_ROOT, 'files')
         files = os.listdir(path)
-        return JsonResponse({'files': files})
+        return Response({'files': files}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         file_serializer = FileSerializer(data=request.data)
