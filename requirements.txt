@@ -1,4 +1,6 @@
 biopython==1.79
 Django==3.2.9
+scikit-learn~=1.0.2
+scikit-learn-extra==0.2.0
 djangorestframework==3.13.1
 django-cors-headers==3.11.0
