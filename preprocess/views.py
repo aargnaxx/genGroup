@@ -77,16 +77,25 @@ def calculate_distances(fastafile, fastqfile):
             smaller_seq = len(x.seq) if len(x.seq) < len(y.seq) else len(y.seq)
             score = smaller_seq - score
 
+            if score > 35:
+                continue
+
             if not scores.get(score):
                 scores[score] = 0
 
             scores[score] += 1
 
+        aggregated_scores = [0] * 36
+        for i in range(36):
+            score = scores.get(i, 0)
+
+            if i != 0:
+                score = score + aggregated_scores[i-1]
+            aggregated_scores[i] = score
+
         if not distances.get(x.id): 
             distances[x.id] = {}
 
-        scores = dict(sorted(scores.items(), key=lambda item: item[1], reverse=True))
-        distances[x.id] = scores.copy()
-
+        distances[x.id] = aggregated_scores.copy()
 
     return distances
