@@ -1,4 +1,4 @@
-from preprocess.scoring import Scoring, pcoa_calculate_dissimilarity
+from preprocess.scoring import Scoring, calculate_dissimilarity
 from sklearn.metrics import pairwise_distances
 from sklearn.cluster import AgglomerativeClustering
 from collections import Counter
@@ -6,7 +6,7 @@ from collections import Counter
 
 class ClusteringAglo:
     def __init__(self, num_clusters, scores, reading_length):
-        diss = pcoa_calculate_dissimilarity(scores, reading_length)
+        diss = calculate_dissimilarity(scores, reading_length)
         pd = pairwise_distances(diss)
         self.num_clusters = num_clusters
         self.aglo = AgglomerativeClustering(num_clusters, affinity='precomputed', linkage='complete')

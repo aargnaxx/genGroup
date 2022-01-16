@@ -26,8 +26,8 @@ class Scoring:
         num_seqs = len(self.records)
         scores = [0 for i in range(num_seqs)]
         for j in range(num_seqs):
-            align = pairwise2.align.globalxx(self.records[rid], self.records[j])
-            scores[j] = align[0].score
+            scores[j] = pairwise2.align.globalxs(self.records[rid].seq, self.records[j].seq, -1, -1,
+                                                 penalize_end_gaps=False, score_only=True)
         return rid, scores
 
     def score_calc(self):
@@ -58,10 +58,17 @@ class Scoring:
                 self.score.append([float(i) for i in line.rstrip().split(' ')])
 
 
-def pcoa_calculate_dissimilarity(scores, reading_len):
+def calculate_dissimilarity(scores, reading_len):
     for i in range(len(scores)):
         for j in range(len(scores)):
             scores[i][j] = - (scores[i][j] / reading_len - 1)
+    return scores
+
+
+def calculate_affinity(scores, reading_len):
+    for i in range(len(scores)):
+        for j in range(len(scores)):
+            scores[i][j] = scores[i][j] / reading_len
     return scores
 
 
