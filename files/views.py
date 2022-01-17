@@ -10,7 +10,7 @@ from rest_framework import status
 
 from genGroup.settings import MEDIA_ROOT
 
-from .models import File
+from .models import AnalysisFile, ResultFile
 from .serializers import FileSerializer
 
 # Create your views here.

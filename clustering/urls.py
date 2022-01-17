@@ -4,5 +4,6 @@ from . import views
 
 app_name = 'clustering'
 urlpatterns = [
-    path('<int:seq_length>/<int:decrement_range>/<int:increment_range>', views.run, name='run'),
+    path('', views.ClusteringList.as_view(), name='clustering_list'),
+    path('<int:pk>', views.ClusteringView.as_view(), name='clustering_view'),
 ]

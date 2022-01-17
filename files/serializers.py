@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import File
+from .models import AnalysisFile
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = File
+        model = AnalysisFile
         fields = '__all__'

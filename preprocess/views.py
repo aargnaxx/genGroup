@@ -3,14 +3,15 @@ import os
 from Bio import SeqIO, pairwise2
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render, redirect
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from genGroup.settings import MEDIA_ROOT
 
+from files.models import AnalysisFile, ResultFile
 from .forms import SelectFileForm, SelectSequenceLength, UploadFileForm
+from preprocess.models import SequenceLengthAnalysis, DistancesAnalysis, DistancesBetweenResultsAnalysis
 
 
 class Preprocessing(APIView):
@@ -18,22 +19,41 @@ class Preprocessing(APIView):
         file_to_analyze = request.POST.get('file_to_analyze')
         if file_to_analyze == None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        file_to_analyze, created = AnalysisFile.objects.get_or_create(name=file_to_analyze)
                 
         result_file = request.POST.get('result_file')
         if result_file == None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            with open(os.path.join(MEDIA_ROOT, "files/" + file_to_analyze)) as fastqfile:
-                with open(os.path.join(MEDIA_ROOT, "files/" + result_file)) as fastafile:
-                    sequence_lengths= calculate_sequence_lengths(fastqfile)
-                    distances_between_results = calculate_distances_between_results(fastafile)
+        result_file, created = ResultFile.objects.get_or_create(name=result_file)
 
-                    fastqfile.seek(0)
-                    fastafile.seek(0)
-                    distances = calculate_distances(fastafile, fastqfile)
-        except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            if not hasattr(file_to_analyze, "sequencelengthanalysis"):
+                with open(os.path.join(MEDIA_ROOT, "files/" + file_to_analyze.name)) as fastqfile:
+                    sequence_lengths= calculate_sequence_lengths(fastqfile)
+                    SequenceLengthAnalysis.objects.create(file=file_to_analyze, sequence_lengths=sequence_lengths)
+
+
+            if not hasattr(result_file, "distancesbetweenresultsanalysis"):
+                with open(os.path.join(MEDIA_ROOT, "files/" + result_file.name)) as fastafile:
+                    distances_between_results = calculate_distances_between_results(fastafile)
+                    DistancesBetweenResultsAnalysis.objects.create(file=result_file, distances=distances_between_results)
+
+            if not file_to_analyze.distancesanalysis_set.filter(result_file=result_file).count():
+                with open(os.path.join(MEDIA_ROOT, "files/" + file_to_analyze.name)) as fastqfile:
+                    with open(os.path.join(MEDIA_ROOT, "files/" + result_file.name)) as fastafile:
+                        distances = calculate_distances(fastafile, fastqfile)
+                        DistancesAnalysis.objects.create(analysis_file=file_to_analyze, result_file=result_file, distances=distances)
+        except Exception as e:
+            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            sequence_lengths = AnalysisFile.sequencelengthanalysis.sequence_lengths
+            distances_between_results = ResultFile.distancesbetweenresultsanalysis.sequence_lengths
+            distances= AnalysisFile.distancesanalysis_set.get(result_file=result_file).distances
+        except Exception as e:
+            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         context = {'sequence_lengths': sequence_lengths, 'distances_between_results': distances_between_results, 'distances': distances}
         return Response(context, status=status.HTTP_200_OK)

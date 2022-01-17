@@ -43,12 +43,6 @@ class Clustering:
 def main(input_file, reading_length):
     sc = Scoring(input_file, reading_length)
     sc.score_calc()
-    # cl = Clustering(scores=sc.score, reading_length=reading_length, clustering_type='kmedoids', num_clusters=3)
-    # cl = Clustering(scores=sc.score, reading_length=reading_length, clustering_type='agglomerative', num_clusters=3)
     cl = Clustering(scores=sc.score, reading_length=reading_length, clustering_type='spectral', num_clusters=3)
     cl.print()
     # cl.save_result('result_spec.txt')
-
-
-if __name__ == "__main__":
-    main('../media/files/J29_B_CE_IonXpress_005.fastq', 298)
