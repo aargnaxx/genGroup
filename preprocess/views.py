@@ -46,14 +46,14 @@ class Preprocessing(APIView):
                         distances = calculate_distances(fastafile, fastqfile)
                         DistancesAnalysis.objects.create(analysis_file=file_to_analyze, result_file=result_file, distances=distances)
         except Exception as e:
-            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(e.__str__(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
-            sequence_lengths = AnalysisFile.sequencelengthanalysis.sequence_lengths
-            distances_between_results = ResultFile.distancesbetweenresultsanalysis.sequence_lengths
-            distances= AnalysisFile.distancesanalysis_set.get(result_file=result_file).distances
+            sequence_lengths = file_to_analyze.sequencelengthanalysis.sequence_lengths
+            distances_between_results = result_file.distancesbetweenresultsanalysis.distances
+            distances= file_to_analyze.distancesanalysis_set.get(result_file=result_file).distances
         except Exception as e:
-            return Response(e, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(e.__str__(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         context = {'sequence_lengths': sequence_lengths, 'distances_between_results': distances_between_results, 'distances': distances}
         return Response(context, status=status.HTTP_200_OK)

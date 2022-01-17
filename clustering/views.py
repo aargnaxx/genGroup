@@ -20,21 +20,21 @@ class ClusteringList(APIView):
     def post(self, request, *args, **kwargs):
         input_file = request.POST.get('input_file')
         if input_file == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response("input_file parameter is missing ",status=status.HTTP_400_BAD_REQUEST)
 
         analysis_file, created = AnalysisFile.objects.get_or_create(name=input_file)
 
         sequence_length = request.POST.get('reading_length')
         if sequence_length == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response("reading_length parameter is missing", status=status.HTTP_400_BAD_REQUEST)
 
         clustering_type = request.POST.get('clustering_type')
         if clustering_type == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response("clustering_type parameter is missing", status=status.HTTP_400_BAD_REQUEST)
 
         num_clusters = request.POST.get('num_clusters')
         if num_clusters == None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response("num_clusters parameter is missing", status=status.HTTP_400_BAD_REQUEST)
 
         ca = ClusteringAnalysis.objects.filter(analysis_file=analysis_file, sequence_length=sequence_length, clustering_type=clustering_type, num_clusters=num_clusters)
         
