@@ -20,6 +20,7 @@
 
     <!-- <canvas id="c" width="550" height="160"></canvas> -->
     <section v-if="dataReady">
+      <br>
       <table style="display: inline-table">
         <tr>
           <th></th>
@@ -94,23 +95,7 @@ export default class Preprocessing extends Vue {
       timeout: 60000,
     })
       .then((response) => {
-        //handle success
-        //         console.log(response);
-        //         var histogramData: any = [];
-        //         for (const [key, value] of Object.entries(
-        //           response.data.sequence_lengths
-        //         )) {
-        //           histogramData.push({ aCount: value, aLength: key });
-        //           this.dataPoints.push(value)
-        //         }
-        //         console.log(histogramData);
-        //         var c = document.getElementById("c");
-        // var ctx = (c as any).getContext("2d");
-        // ctx.beginPath();
-        // ctx.moveTo(10,0)
-        // ctx.lineTo(10,150);
-        // ctx.lineTo(550,150);
-        // ctx.stroke();
+
         var a: string[] = [];
         response.data.distances_between_results.forEach((element: any) => {
           a.push(element[0]);
