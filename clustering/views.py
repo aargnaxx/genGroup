@@ -1,8 +1,8 @@
-import os
+from collections import Counter
+import json
 from threading import Thread
 
 from Bio import SeqIO
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -57,8 +57,22 @@ class ClusteringList(APIView):
             return Response(ca.pk, status=status.HTTP_200_OK)
 
     def get(self, request, *args, **kwargs):
-        ca = ClusteringAnalysis.objects.all()
-        return Response(ca, status=status.HTTP_200_OK)
+        cas = ClusteringAnalysis.objects.all()
+        clustering_results = []
+        for ca in cas:
+            if not ca.results:
+                continue
+                
+            ca_result = {
+                "analysis_file": ca.analysis_file.name,
+                "sequence_length": ca.sequence_length,
+                "clustering_type": ca.clustering_type,
+                "num_clusters": ca.num_clusters,
+                "results": ca.results
+            }
+            clustering_results.append(ca_result)
+
+        return Response(clustering_results, status=status.HTTP_200_OK)
 
 
 class ClusteringView(APIView):
@@ -88,7 +102,11 @@ def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters
 
     cl = Clustering(scores=sa.scores, reading_length=sequence_length, clustering_type=clustering_type,
                     num_clusters=num_clusters)
-    results = [label for label in cl.results.labels_]
+    c = Counter(cl.results.labels_)
+    results = {}
+    for key in c.keys():
+        results[str(key)] = c[key]
+
     ca.results = results
     ca.save()
 
