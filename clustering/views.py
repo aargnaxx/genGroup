@@ -28,6 +28,8 @@ class ClusteringList(APIView):
         if sequence_length is None:
             return Response("reading_length parameter is missing", status=status.HTTP_400_BAD_REQUEST)
 
+        sequence_length = int(sequence_length)
+
         clustering_type = request.POST.get('clustering_type')
         if clustering_type is None:
             return Response("clustering_type parameter is missing", status=status.HTTP_400_BAD_REQUEST)
@@ -35,6 +37,8 @@ class ClusteringList(APIView):
         num_clusters = request.POST.get('num_clusters')
         if num_clusters is None:
             return Response("num_clusters parameter is missing", status=status.HTTP_400_BAD_REQUEST)
+
+        num_clusters = int(num_clusters)
 
         ca = ClusteringAnalysis.objects.filter(analysis_file=analysis_file, sequence_length=sequence_length,
                                                clustering_type=clustering_type, num_clusters=num_clusters)
@@ -61,7 +65,10 @@ class ClusteringView(APIView):
     def get(self, request, pk, *args, **kwargs):
         try:
             ca = ClusteringAnalysis.objects.get(pk=pk)
-            return Response(ca.results, status=status.HTTP_200_ok)
+            if ca.results:
+                return Response(ca.results, status=status.HTTP_200_OK)
+
+            return Response("Results not yet available", status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -69,7 +76,6 @@ class ClusteringView(APIView):
 def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters, ca):
     sc = Scoring(analysis_file.name, sequence_length)
     sc.score_calc()
-    print(sc.score)
     cl = Clustering(scores=sc.score, reading_length=sequence_length, clustering_type=clustering_type,
                     num_clusters=num_clusters)
     ca.results = cl.results.labels_

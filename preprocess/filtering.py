@@ -1,11 +1,12 @@
 import os
-from Bio import SeqIO, Align
 from itertools import chain
 
+from Bio import SeqIO, Align
+from genGroup.settings import MEDIA_ROOT
+
 DEBUG = True
-DATA_DIR = '../media/'
 FORMAT = 'fastq'
-OUTPUT_FILE = DATA_DIR + 'processed.' + FORMAT
+OUTPUT_FILE = MEDIA_ROOT + 'processed.' + FORMAT
 
 
 def read_processed():
@@ -24,24 +25,27 @@ class Filter:
 
     def longer_than(self, filtered_length):
         self.readings = list(chain.from_iterable([
-            [rec for rec in SeqIO.parse(DATA_DIR + file, FORMAT) if len(rec) > filtered_length] for file in self.files]
+            [rec for rec in SeqIO.parse(os.path.join(MEDIA_ROOT, "files", file), FORMAT) if
+             len(rec.seq) > filtered_length] for file in self.files]
         ))
         return self.readings
 
     def exact_length(self, filtered_length):
         self.readings = list(chain.from_iterable([
-            [rec for rec in SeqIO.parse(DATA_DIR + file, FORMAT) if len(rec) == filtered_length] for file in self.files]
+            [rec for rec in SeqIO.parse(os.path.join(MEDIA_ROOT, "files", file), FORMAT) if
+             len(rec.seq) == filtered_length] for file in self.files]
         ))
+
         return self.readings
 
 
 if __name__ == '__main__':
-    file_list = os.listdir(DATA_DIR)
+    file_list = os.listdir(os.path.join(MEDIA_ROOT, "files"))
     print(file_list)
     file_list = ['J29_B_CE_IonXpress_005.fastq']
 
     if DEBUG:
-        print(f'{len(file_list)} files found in {DATA_DIR}')
+        print(f'{len(file_list)} files found in {MEDIA_ROOT}')
     filtered = Filter(file_list)
     # readings = filtered.longer_than(300)
     readings = filtered.exact_length(298)
@@ -49,4 +53,3 @@ if __name__ == '__main__':
         print(f'read {len(readings)} sequences')
         print(f'dumping to {OUTPUT_FILE}')
     SeqIO.write(readings, OUTPUT_FILE, FORMAT)
-
