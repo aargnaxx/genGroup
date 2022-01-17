@@ -86,9 +86,10 @@ def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters
         sa.scores = sc.score
         sa.save()
 
-    cl = Clustering(scores=sa.score, reading_length=sequence_length, clustering_type=clustering_type,
+    cl = Clustering(scores=sa.scores, reading_length=sequence_length, clustering_type=clustering_type,
                     num_clusters=num_clusters)
-    ca.results = cl.results.labels_
+    results = [label for label in cl.results.labels_]
+    ca.results = results
     ca.save()
 
 
