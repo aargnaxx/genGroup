@@ -1,8 +1,6 @@
 import os
 
 from Bio import SeqIO, pairwise2
-from django.http.response import HttpResponseRedirect
-from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,7 +8,6 @@ from rest_framework import status
 from genGroup.settings import MEDIA_ROOT
 
 from files.models import AnalysisFile, ResultFile
-from .forms import SelectFileForm, SelectSequenceLength, UploadFileForm
 from preprocess.models import SequenceLengthAnalysis, DistancesAnalysis, DistancesBetweenResultsAnalysis
 
 
