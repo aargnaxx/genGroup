@@ -29,20 +29,20 @@ class Clustering:
         print(c)
         print(self.results.labels_)
 
-    def save_result(self, output_file):
-        lines = str(self.num_clusters) + "\n---\n"
-        lines += ", ".join(str(x) for x in self.results.labels_)
-        lines += "\n---\n"
+    def save_result(self):
         c = Counter(self.results.labels_)
-        for i in range(self.num_clusters):
-            lines += f'{i}({c[i]})\n'
-        with open(output_file, 'w+') as file:
-            file.writelines(lines)
+        result = {'num_clusters': (self.num_clusters,), 'labels': (" ".join(str(x) for x in self.results.labels_),),
+                  'clusters': {f'i': c[i] for i in range(self.num_clusters)}}
+        return result
 
 
-def main(input_file, reading_length):
+def test(input_file, reading_length):
     sc = Scoring(input_file, reading_length)
     sc.score_calc()
     cl = Clustering(scores=sc.score, reading_length=reading_length, clustering_type='spectral', num_clusters=3)
     cl.print()
-    # cl.save_result('result_spec.txt')
+    print(cl.save_result())
+
+
+if __name__ == '__main__':
+    test('J29_B_CE_IonXpress_005.fastq', 296)
