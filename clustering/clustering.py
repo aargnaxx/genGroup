@@ -1,3 +1,5 @@
+import json
+
 from sklearn_extra.cluster import KMedoids
 from preprocess.scoring import Scoring, calculate_affinity, calculate_dissimilarity
 from sklearn.metrics import pairwise_distances
@@ -31,8 +33,9 @@ class Clustering:
 
     def save_result(self):
         c = Counter(self.results.labels_)
-        result = {'num_clusters': (self.num_clusters,), 'labels': (" ".join(str(x) for x in self.results.labels_),),
-                  'clusters': {f'i': c[i] for i in range(self.num_clusters)}}
+        result = {'num_clusters': (self.num_clusters,),
+                  'labels': (" ".join(str(x) for x in self.results.labels_),),
+                  'clusters': {f'{i}': c[i] for i in range(self.num_clusters)}}
         return result
 
 
@@ -41,7 +44,7 @@ def test(input_file, reading_length):
     sc.score_calc()
     cl = Clustering(scores=sc.score, reading_length=reading_length, clustering_type='spectral', num_clusters=3)
     cl.print()
-    print(cl.save_result())
+    print(json.dumps(cl.save_result(), indent=4))
 
 
 if __name__ == '__main__':
