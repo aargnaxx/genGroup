@@ -18,7 +18,7 @@ class Preprocessing(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         file_to_analyze, created = AnalysisFile.objects.get_or_create(name=file_to_analyze)
-                
+
         result_file = request.POST.get('result_file')
         if result_file == None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -28,33 +28,35 @@ class Preprocessing(APIView):
         try:
             if not hasattr(file_to_analyze, "sequencelengthanalysis"):
                 with open(os.path.join(MEDIA_ROOT, "files/" + file_to_analyze.name)) as fastqfile:
-                    sequence_lengths= calculate_sequence_lengths(fastqfile)
+                    sequence_lengths = calculate_sequence_lengths(fastqfile)
                     SequenceLengthAnalysis.objects.create(file=file_to_analyze, sequence_lengths=sequence_lengths)
-
 
             if not hasattr(result_file, "distancesbetweenresultsanalysis"):
                 with open(os.path.join(MEDIA_ROOT, "files/" + result_file.name)) as fastafile:
                     distances_between_results = calculate_distances_between_results(fastafile)
-                    DistancesBetweenResultsAnalysis.objects.create(file=result_file, distances=distances_between_results)
+                    DistancesBetweenResultsAnalysis.objects.create(file=result_file,
+                                                                   distances=distances_between_results)
 
             if not file_to_analyze.distancesanalysis_set.filter(result_file=result_file).count():
                 with open(os.path.join(MEDIA_ROOT, "files/" + file_to_analyze.name)) as fastqfile:
                     with open(os.path.join(MEDIA_ROOT, "files/" + result_file.name)) as fastafile:
                         distances = calculate_distances(fastafile, fastqfile)
-                        DistancesAnalysis.objects.create(analysis_file=file_to_analyze, result_file=result_file, distances=distances)
+                        DistancesAnalysis.objects.create(analysis_file=file_to_analyze, result_file=result_file,
+                                                         distances=distances)
         except Exception as e:
             return Response(e.__str__(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             sequence_lengths = file_to_analyze.sequencelengthanalysis.sequence_lengths
             distances_between_results = result_file.distancesbetweenresultsanalysis.distances
-            distances= file_to_analyze.distancesanalysis_set.get(result_file=result_file).distances
+            distances = file_to_analyze.distancesanalysis_set.get(result_file=result_file).distances
         except Exception as e:
             return Response(e.__str__(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        context = {'sequence_lengths': sequence_lengths, 'distances_between_results': distances_between_results, 'distances': distances}
+        context = {'sequence_lengths': sequence_lengths, 'distances_between_results': distances_between_results,
+                   'distances': distances}
         return Response(context, status=status.HTTP_200_OK)
-        
+
 
 def calculate_sequence_lengths(fastqfile):
     counts = {}
@@ -67,6 +69,7 @@ def calculate_sequence_lengths(fastqfile):
         counts[seq_len] += 1
 
     return counts
+
 
 def calculate_distances_between_results(fastafile):
     distances = []
@@ -82,6 +85,7 @@ def calculate_distances_between_results(fastafile):
             distances.append((x.id, y.id, smaller_seq))
 
     return distances
+
 
 def calculate_distances(fastafile, fastqfile):
     distances = {}
@@ -107,10 +111,10 @@ def calculate_distances(fastafile, fastqfile):
             score = scores.get(i, 0)
 
             if i != 0:
-                score = score + aggregated_scores[i-1]
+                score = score + aggregated_scores[i - 1]
             aggregated_scores[i] = score
 
-        if not distances.get(x.id): 
+        if not distances.get(x.id):
             distances[x.id] = {}
 
         distances[x.id] = aggregated_scores.copy()

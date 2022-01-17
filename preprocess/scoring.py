@@ -31,15 +31,11 @@ class Scoring:
         return rid, scores
 
     def score_calc(self):
-        if os.path.exists(f'{self.file_name}.{self.reading_length}.scores.txt'):
-            self.read_score()
-        else:
-            self.score = [[0.0 for i in range(self.num_recs)] for j in range(self.num_recs)]
-            with Pool(NUM_PROCESSORS) as p:
-                scores = p.map(self.parallelized_score_calculation, [i for i in range(self.num_recs)])
-                for i in range(self.num_recs):
-                    self.score[scores[i][0]] = scores[i][1]
-            self.save_score()
+        self.score = [[0.0 for i in range(self.num_recs)] for j in range(self.num_recs)]
+        with Pool(NUM_PROCESSORS) as p:
+            scores = p.map(self.parallelized_score_calculation, [i for i in range(self.num_recs)])
+            for i in range(self.num_recs):
+                self.score[scores[i][0]] = scores[i][1]
         return self.score
 
     def save_score(self):

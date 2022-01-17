@@ -11,7 +11,7 @@ from files.models import AnalysisFile
 from preprocess.scoring import Scoring
 
 from .clustering import Clustering
-from .models import ClusteringAnalysis
+from .models import ClusteringAnalysis, ScoringAnalysis
 
 
 # Create your views here.
@@ -74,11 +74,22 @@ class ClusteringView(APIView):
 
 
 def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters, ca):
-    sc = Scoring(analysis_file.name, sequence_length)
-    sc.score_calc()
-    cl = Clustering(scores=sc.score, reading_length=sequence_length, clustering_type=clustering_type,
+    sa = ScoringAnalysis.objects.filter(analysis_file=analysis_file, sequence_length=sequence_length)
+    if not sa.count():
+        sa = ScoringAnalysis.objects.create(analysis_file=analysis_file, sequence_length=sequence_length)
+    else:
+        sa = sa.first()
+
+    if not sa.scores:
+        sc = Scoring(analysis_file.name, sequence_length)
+        sc.score_calc()
+        sa.scores = sc.score
+        sa.save()
+
+    cl = Clustering(scores=sa.score, reading_length=sequence_length, clustering_type=clustering_type,
                     num_clusters=num_clusters)
     ca.results = cl.results.labels_
+    ca.save()
 
 
 def filter_out(fastqfile, seq_range):
