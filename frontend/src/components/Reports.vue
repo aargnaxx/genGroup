@@ -1,19 +1,17 @@
 <template>
   <div class="section">
-    <b-field label="Vrsta izvještaja">
-      <b-select placeholder="Odaberite izvještaj" expanded v-model="reportType">
-        <option value="0">Prva vrsta izvještaja</option>
-        <option value="1">Druga vrsta izvještaja</option>
-        <option value="2">Usporedba s drugom datotekom</option>
+    <b-field label="Izvještaj">
+      <b-select placeholder="Odaberite izvještaj" expanded v-model="selectedId">
+        <option v-for="(r, i) in reports" :key="i" :value="i">{{ r.analysis_file }}</option>
       </b-select>
     </b-field>
 
-    <b-button type="is-primary is-light" @click="getReport"
+    <!-- <b-button type="is-primary is-light" @click="getReport"
       >Prikaži izvještaj</b-button
-    >
-    <section v-if="resultString != ''">
+    > -->
+    <section v-if="selectedId != -1">
       <br />
-      <b-message type="is-info">{{ this.resultString }}</b-message>
+      <b-message type="is-info">{{ this.reports[selectedId] }}</b-message>
     </section>
   </div>
 </template>
@@ -26,16 +24,16 @@ import axios from "axios";
 @Component
 export default class Reports extends Vue {
   @Model() private reports: any[] = [];
-  @Model() private selectedId = 1;
+  @Model() private selectedId = -1;
   @Model() private resultString = "";
 
   private getReports(): void {
     axios({
       method: "get",
-      url: "http://localhost:8001/clustering/",
+      url: "clustering/",
     })
       .then((response) => {
-        this.reports = response.data.files;
+        this.reports = response.data;
         console.log(response);
       })
       .catch(function (response) {
@@ -47,7 +45,7 @@ export default class Reports extends Vue {
   private getReport(): void {
     axios({
       method: "get",
-      url: "http://localhost:8001/clustering/" + this.selectedId,
+      url: "clustering/" + this.selectedId,
     })
       .then((response) => {
         this.resultString = response.data;

@@ -89,7 +89,7 @@ export default class Preprocessing extends Vue {
 
     axios({
       method: "post",
-      url: "http://localhost:8001/preprocess/",
+      url: "preprocess/",
       data: data,
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       timeout: 60000,
@@ -216,7 +216,7 @@ export default class Preprocessing extends Vue {
   mounted(): void {
     axios({
       method: "get",
-      url: "http://localhost:8001/files/",
+      url: "files/",
     })
       .then((response) => {
         this.files = response.data.files;

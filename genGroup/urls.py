@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from vue_app import views as vue_views  # This line is new
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('files/', include('files.urls')),
     path('results/', include('results.urls')),
     path('preprocess/', include('preprocess.urls')),
+    path('', vue_views.test_vue)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

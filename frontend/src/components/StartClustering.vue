@@ -61,7 +61,7 @@ export default class StartClustering extends Vue {
   mounted(): void {
     axios({
       method: "get",
-      url: "http://localhost:8001/files/",
+      url: "files/",
     })
       .then((response) => {
         this.files = response.data.files;
@@ -82,7 +82,7 @@ export default class StartClustering extends Vue {
 
     axios({
       method: "post",
-      url: "http://localhost:8001/clustering/",
+      url: "clustering/",
       data: data,
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       timeout: 60000,
@@ -91,7 +91,6 @@ export default class StartClustering extends Vue {
         this.$buefy.notification.open({
           message: "Clustering započet kao id:" + response.data,
           duration: 5000,
-          progressBar: true,
           type: "is-primary",
           pauseOnHover: true,
         });
@@ -100,7 +99,6 @@ export default class StartClustering extends Vue {
         this.$buefy.notification.open({
           message: "Clustering nije uspio",
           duration: 5000,
-          progressBar: true,
           type: "is-danger",
           pauseOnHover: true,
         });

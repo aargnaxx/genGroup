@@ -51,7 +51,7 @@ export default class Upload extends Vue {
 
       await axios({
         method: "post",
-        url: "http://localhost:8001/files/",
+        url: "files/",
         data: bodyFormData,
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -59,7 +59,6 @@ export default class Upload extends Vue {
           this.$buefy.notification.open({
             message: element.name + ` uploaded succesfully`,
             duration: 5000,
-            progressBar: true,
             type: "is-primary",
             pauseOnHover: true,
           });
@@ -70,7 +69,6 @@ export default class Upload extends Vue {
           this.$buefy.notification.open({
             message: `Upload fail`,
             duration: 5000,
-            progressBar: true,
             type: "is-danger",
             pauseOnHover: true,
           });
