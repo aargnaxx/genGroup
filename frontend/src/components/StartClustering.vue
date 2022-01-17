@@ -3,24 +3,34 @@
     <b-field>
       <b-radio-button
         v-model="radioButton"
-        native-value="reg"
-        type="is-danger is-light is-outlined"
-        acti
+        native-value="spectral"
+        type="is-primary is-light is-outlined"
       >
-        <span>Običan clustering</span>
+        <span>Spectral clustering</span>
       </b-radio-button>
 
       <b-radio-button
         v-model="radioButton"
-        native-value="notreg"
+        native-value="kmedoids"
         type="is-success is-light is-outlined"
       >
-        <span>Određen broj clustera</span>
+        <span>Kmedoids clustering</span>
+      </b-radio-button>
+
+      <b-radio-button
+        v-model="radioButton"
+        native-value="agglomerative"
+        type="is-info is-light is-outlined"
+      >
+        <span>Agglomerative clustering</span>
       </b-radio-button>
     </b-field>
-    <b-field v-if="radioButton == 'notreg'">
-      <b-field label="Broj klustera">
-        <b-numberinput v-model="number"></b-numberinput>
+    <b-field grouped>
+      <b-field label="Broj klustera" expanded>
+        <b-numberinput v-model="clusterNumber"></b-numberinput>
+      </b-field>
+      <b-field label="Dužina čitanja" expanded>
+        <b-numberinput v-model="reading_length"></b-numberinput>
       </b-field>
     </b-field>
     <b-field label="Datoteka">
@@ -30,7 +40,7 @@
         </option>
       </b-select>
     </b-field>
-    <b-button type="is-primary">Započni</b-button>
+    <b-button type="is-primary" @click="startClustering">Započni</b-button>
   </div>
 </template>
 
@@ -41,25 +51,60 @@ import axios from "axios";
 @Component
 export default class StartClustering extends Vue {
   @Model() private dropFiles: string[] = [];
-  @Model() private radioButton = "reg";
+  @Model() private radioButton = "kmedoids";
   @Model() private file = "";
+  @Model() private clusterNumber = 0;
+  @Model() private reading_length = 0;
 
   private files: string[] = [];
 
-  mounted(): void{
+  mounted(): void {
+    axios({
+      method: "get",
+      url: "http://localhost:8001/files/",
+    })
+      .then((response) => {
+        this.files = response.data.files;
+        console.log(response);
+      })
+      .catch(function (response) {
+        //handle error
+        console.log(response);
+      });
+  }
+
+  private startClustering(): void {
+    var data = new URLSearchParams();
+    data.append("input_file", this.file);
+    data.append("clustering_type", this.radioButton);
+    data.append("num_clusters", this.clusterNumber.toString());
+    data.append("reading_length", this.reading_length.toString());
 
     axios({
-        method: "get",
-        url: "http://localhost:8001/files/",
-      })
-        .then(response =>{
-          this.files = response.data.files;
-          console.log(response);
-        })
-        .catch(function (response) {
-          //handle error
-          console.log(response);
+      method: "post",
+      url: "http://localhost:8001/clustering/",
+      data: data,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      timeout: 60000,
+    })
+      .then((response) => {
+        this.$buefy.notification.open({
+          message: "Clustering započet kao id:" + response.data,
+          duration: 5000,
+          progressBar: true,
+          type: "is-primary",
+          pauseOnHover: true,
         });
+      })
+      .catch(() => {
+        this.$buefy.notification.open({
+          message: "Clustering nije uspio",
+          duration: 5000,
+          progressBar: true,
+          type: "is-danger",
+          pauseOnHover: true,
+        });
+      });
   }
 }
 </script>
