@@ -95,6 +95,11 @@ class ClusteringStatus(APIView):
             s = {
                 "id": ca.pk,
                 "status": ca.status,
+                "analysis_file": ca.analysis_file.name,
+                "sequence_length": ca.sequence_length,
+                "clustering_type": ca.clustering_type,
+                "num_clusters": ca.num_clusters,
+                "results": ca.results
             }
 
             statuses.append(s)
