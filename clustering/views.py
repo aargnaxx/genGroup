@@ -45,7 +45,7 @@ class ClusteringList(APIView):
 
         if not ca.count():
             ca = ClusteringAnalysis.objects.create(analysis_file=analysis_file, sequence_length=sequence_length,
-                                                   clustering_type=clustering_type, num_clusters=num_clusters)
+                                                   clustering_type=clustering_type, num_clusters=num_clusters, status='IP')
         else:
             ca = ca.first()
 
@@ -87,28 +87,45 @@ class ClusteringView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class ClusteringStatus(APIView):
+    def get(self, request, *args, **kwargs):
+        cas = ClusteringAnalysis.objects.all()
+        statuses = []
+        for ca in cas:
+            s = {
+                "id": ca.pk,
+                "status": ca.status,
+            }
+
+            statuses.append(s)
+        return Response(statuses, status=status.HTTP_200_OK)
+
+
 def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters, ca):
-    sa = ScoringAnalysis.objects.filter(analysis_file=analysis_file, sequence_length=sequence_length)
-    if not sa.count():
-        sa = ScoringAnalysis.objects.create(analysis_file=analysis_file, sequence_length=sequence_length)
-    else:
-        sa = sa.first()
+    try:
+        sa = ScoringAnalysis.objects.filter(analysis_file=analysis_file, sequence_length=sequence_length)
+        if not sa.count():
+            sa = ScoringAnalysis.objects.create(analysis_file=analysis_file, sequence_length=sequence_length)
+        else:
+            sa = sa.first()
 
-    if not sa.scores:
-        sc = Scoring(analysis_file.name, sequence_length)
-        sc.score_calc()
-        sa.scores = sc.score
-        sa.save()
+        if not sa.scores:
+            sc = Scoring(analysis_file.name, sequence_length)
+            sc.score_calc()
+            sa.scores = sc.score
+            sa.save()
 
-    cl = Clustering(scores=sa.scores, reading_length=sequence_length, clustering_type=clustering_type,
-                    num_clusters=num_clusters)
-    c = Counter(cl.results.labels_)
-    results = {}
-    for key in c.keys():
-        results[str(key)] = c[key]
+        cl = Clustering(scores=sa.scores, reading_length=sequence_length, clustering_type=clustering_type,
+                        num_clusters=num_clusters)
+        c = Counter(cl.results.labels_)
+        results = {}
+        for key in c.keys():
+            results[str(key)] = c[key]
 
-    ca.results = results
-    ca.save()
+        ca.results = results
+        ca.save()
+    except:
+        pass
 
 
 def filter_out(fastqfile, seq_range):
