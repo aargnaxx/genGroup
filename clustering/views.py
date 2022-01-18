@@ -123,9 +123,11 @@ def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters
             results[str(key)] = c[key]
 
         ca.results = results
+        ca.status = 'SU'
         ca.save()
     except:
-        pass
+        ca.status = 'FA'
+        ca.save()
 
 
 def filter_out(fastqfile, seq_range):
