@@ -1,6 +1,5 @@
 import os
 from itertools import chain
-
 from Bio import SeqIO, Align
 from genGroup.settings import MEDIA_ROOT
 
@@ -19,37 +18,41 @@ def pairwise_alignment_score(sequence1, sequence2):
 
 
 class Filter:
-    def __init__(self, filename):
+    def __init__(self, filename, format_="fastq"):
         self.readings = []
         self.files = [filename]
+        self.format = format_
+
+    def cond(self, f):
+        self.readings = list(chain.from_iterable(
+            [[rec for rec in SeqIO.parse(os.path.join(MEDIA_ROOT, "files", file), self.format)
+             if f(rec)] for file in self.files]
+        ))
+        if DEBUG:
+            print(f'read {len(self.readings)} sequences')
+        return self.readings
 
     def longer_than(self, filtered_length):
-        self.readings = list(chain.from_iterable([
-            [rec for rec in SeqIO.parse(os.path.join(MEDIA_ROOT, "files", file), FORMAT) if
-             len(rec.seq) > filtered_length] for file in self.files]
-        ))
-        return self.readings
+        if DEBUG:
+            print(f'length longer than {filtered_length}')
+        return self.cond(lambda x: len(x.seq) > filtered_length)
 
     def exact_length(self, filtered_length):
-        self.readings = list(chain.from_iterable([
-            [rec for rec in SeqIO.parse(os.path.join(MEDIA_ROOT, "files", file), FORMAT) if
-             len(rec.seq) == filtered_length] for file in self.files]
-        ))
+        if DEBUG:
+            print(f'length {filtered_length}')
+        return self.cond(lambda x: len(x.seq) == filtered_length)
 
-        return self.readings
+    def length_between(self, filtered_length):
+        if DEBUG:
+            print(f'min {min(filtered_length) + 1}, max {max(filtered_length) + 1}')
+        return self.cond(lambda x: (min(filtered_length) < len(x.seq) < max(filtered_length)))
+
+    # TODO maybe add trimming edges
 
 
 if __name__ == '__main__':
-    file_list = os.listdir(os.path.join(MEDIA_ROOT, "files"))
-    print(file_list)
-    file_list = ['J29_B_CE_IonXpress_005.fastq']
-
-    if DEBUG:
-        print(f'{len(file_list)} files found in {MEDIA_ROOT}')
-    filtered = Filter(file_list)
-    # readings = filtered.longer_than(300)
+    file_ = 'J29_B_CE_IonXpress_005.fastq'
+    filtered = Filter(file_)
     readings = filtered.exact_length(298)
-    if DEBUG:
-        print(f'read {len(readings)} sequences')
-        print(f'dumping to {OUTPUT_FILE}')
-    SeqIO.write(readings, OUTPUT_FILE, FORMAT)
+    print('example seq:')
+    print(readings[0].seq)

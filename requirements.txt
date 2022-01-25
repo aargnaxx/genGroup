@@ -4,3 +4,4 @@ scikit-learn~=1.0.2
 scikit-learn-extra==0.2.0
 djangorestframework==3.13.1
 django-cors-headers==3.11.0
+numpy~=1.21.4
