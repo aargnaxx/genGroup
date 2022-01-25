@@ -1,5 +1,4 @@
 from collections import Counter
-import json
 from threading import Thread
 
 from Bio import SeqIO
@@ -9,6 +8,7 @@ from rest_framework import status
 
 from files.models import AnalysisFile
 from preprocess.scoring import Scoring
+# from results.export_results import write_clustering_report_fasta
 
 from .clustering import Clustering
 from .models import ClusteringAnalysis, ScoringAnalysis
@@ -128,6 +128,8 @@ def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters
             results[str(key)] = c[key]
 
         ca.results = results
+        # write_clustering_report_fasta(
+        #     f'report_{clustering_type}_{sequence_length}_{num_clusters}.fasta', [sc.sequences[i] for i in cl.centers])
         ca.status = 'SU'
         ca.save()
     except:
