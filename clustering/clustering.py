@@ -25,11 +25,7 @@ class Clustering:
                                               assign_labels='discretize', n_jobs=-1)
         if clustering_type != 'kmedoids':
             self.results.fit(pd)
-            self.centers = [
-                list(self.results.labels_).index(
-                    next(filter(lambda x: x == i, self.results.labels_), None)
-                ) for i in range(num_clusters)
-            ]
+            self.centers = [list(self.results.labels_).index(i) for i in range(num_clusters)]
         self.c = Counter(self.results.labels_)
 
     def print(self):
@@ -39,7 +35,7 @@ class Clustering:
 
     def save_result(self):
         result = {
-            'num_clusters': self.num_clusters,
+            'num_clusters': f'{self.num_clusters}',
             'labels': (" ".join(str(x) for x in self.results.labels_),)[0],
             'clusters_count': {i: self.c[i] for i in range(self.num_clusters)},
             'centers': (" ".join(str(x) for x in self.centers),)[0],

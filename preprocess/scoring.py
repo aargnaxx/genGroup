@@ -16,18 +16,13 @@ class Scoring:
             for i in range(len(self.records)):
                 self.sequences[i] = self.records[i].seq
             self.reading_length = reading_length
-        else:
-            # TODO add
-            pass
         self.file_name = file_name
         self.num_recs = len(self.records)
-        # self.score = [[0 for _ in range(self.num_recs)] for _ in range(self.num_recs)]
         self.score = np.zeros((self.num_recs, self.num_recs))
 
     def parallelized_score_calculation(self, rid):
         if DEBUG:
             print(f'parallelized_score_calculation with id {rid}')
-        # scores = [0 for i in range(num_seqs)]
         score = [[0 for _ in range(self.num_recs)] for _ in range(self.num_recs)]
         score[rid][rid] = self.reading_length
         for j in range(rid + 1, self.num_recs):

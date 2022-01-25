@@ -8,15 +8,6 @@ FORMAT = 'fastq'
 OUTPUT_FILE = MEDIA_ROOT + 'processed.' + FORMAT
 
 
-def read_processed():
-    return SeqIO.parse(OUTPUT_FILE, FORMAT)
-
-
-def pairwise_alignment_score(sequence1, sequence2):
-    aligner = Align.PairwiseAligner()
-    return aligner.score(sequence1, sequence2)
-
-
 class Filter:
     def __init__(self, filename, format_="fastq"):
         self.readings = []
@@ -26,7 +17,7 @@ class Filter:
     def cond(self, f):
         self.readings = list(chain.from_iterable(
             [[rec for rec in SeqIO.parse(os.path.join(MEDIA_ROOT, "files", file), self.format)
-             if f(rec)] for file in self.files]
+              if f(rec)] for file in self.files]
         ))
         if DEBUG:
             print(f'read {len(self.readings)} sequences')
