@@ -3,7 +3,7 @@ from itertools import chain
 from Bio import SeqIO, Align
 from genGroup.settings import MEDIA_ROOT
 
-DEBUG = True
+DEBUG = False
 FORMAT = 'fastq'
 OUTPUT_FILE = MEDIA_ROOT + 'processed.' + FORMAT
 

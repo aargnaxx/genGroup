@@ -4,7 +4,7 @@ from preprocess.filtering import Filter
 import numpy as np
 
 NUM_PROCESSORS = 12
-DEBUG = True
+DEBUG = False
 
 
 class Scoring:
@@ -12,6 +12,9 @@ class Scoring:
         if reading_length:
             fl = Filter(file_name)
             self.records = fl.exact_length(reading_length)
+            self.sequences = {}
+            for i in range(len(self.records)):
+                self.sequences[i] = self.records[i].seq
             self.reading_length = reading_length
         else:
             # TODO add
