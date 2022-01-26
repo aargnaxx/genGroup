@@ -6,14 +6,6 @@ from files.models import *
 # Create your models here.
 
 
-class Analysis(models.Model):
-    analysis_file = models.CharField(max_length=256)
-    result_file = models.CharField(max_length=256, default='')
-    seq_length = models.IntegerField()
-    decrement_range = models.IntegerField()
-    increment_range = models.IntegerField()
-
-
 class ClusteringAnalysis(models.Model):
     STATUS_CHOICES = [
         ('IP', 'IN_PROGRESS'),
@@ -34,3 +26,4 @@ class ScoringAnalysis(models.Model):
     analysis_file = models.ForeignKey(AnalysisFile, on_delete=models.CASCADE)
     sequence_length = models.PositiveIntegerField()
     scores = models.JSONField(null=True)
+    sequences = models.JSONField(null=True)

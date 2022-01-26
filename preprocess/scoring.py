@@ -3,7 +3,7 @@ from Bio import pairwise2
 from preprocess.filtering import Filter
 import numpy as np
 
-NUM_PROCESSORS = 12
+NUM_PROCESSORS = 4
 DEBUG = False
 
 
@@ -12,9 +12,9 @@ class Scoring:
         if reading_length:
             fl = Filter(file_name)
             self.records = fl.exact_length(reading_length)
-            self.sequences = {}
+            self.sequences = []
             for i in range(len(self.records)):
-                self.sequences[i] = self.records[i].seq
+                self.sequences.append(str(self.records[i].seq))
             self.reading_length = reading_length
         self.file_name = file_name
         self.num_recs = len(self.records)

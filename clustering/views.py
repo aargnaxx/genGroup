@@ -1,14 +1,17 @@
+import os
 from collections import Counter
 from threading import Thread
 
 from Bio import SeqIO
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from genGroup.settings import MEDIA_ROOT
 from files.models import AnalysisFile
 from preprocess.scoring import Scoring
-# from results.export_results import write_clustering_report_fasta
+from results.export_results import write_clustering_report_fasta
 
 from .clustering import Clustering
 from .models import ClusteringAnalysis, ScoringAnalysis
@@ -83,7 +86,18 @@ class ClusteringView(APIView):
                 return Response(ca.results, status=status.HTTP_200_OK)
 
             return Response("Results not yet available", status=status.HTTP_200_OK)
-        except:
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            ca = ClusteringAnalysis.objects.get(pk=pk)
+            ca.delete()
+
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
@@ -105,6 +119,27 @@ class ClusteringStatus(APIView):
             statuses.append(s)
         return Response(statuses, status=status.HTTP_200_OK)
 
+class ClusteringDownload(APIView):
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            ca = ClusteringAnalysis.objects.get(pk=pk)
+            if ca.results:
+                sa = ScoringAnalysis.objects.filter(
+                    analysis_file=ca.analysis_file, sequence_length=ca.sequence_length).last()
+
+                filepath = os.path.join(MEDIA_ROOT, 'files', f'report_{ca.pk}.fasta')
+                if not os.path.exists(filepath):
+                    write_clustering_report_fasta(filepath, [sa.sequences[i] for i in ca.results['centers']])
+
+                with open(filepath, 'rb') as fh:
+                    response =  HttpResponse(fh.read(), content_type='application/fasta')
+                    return response
+
+            return Response("Results not yet available", status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters, ca):
     try:
@@ -117,24 +152,27 @@ def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters
         if not sa.scores:
             sc = Scoring(analysis_file.name, sequence_length)
             sc.score_calc()
-            sa.scores = sc.score
+            sa.scores = sc.score.tolist()
+            sa.sequences = sc.sequences
             sa.save()
 
         cl = Clustering(scores=sa.scores, reading_length=sequence_length, clustering_type=clustering_type,
                         num_clusters=num_clusters)
-        c = Counter(cl.results.labels_)
         results = {}
-        for key in c.keys():
-            results[str(key)] = c[key]
+        for key in cl.c.keys():
+            results[str(key)] = cl.c[key]
 
-        results["centers"] = cl.centers
+        if type(cl.centers) == list:
+            results["centers"] = cl.centers
+        else:
+            results["centers"] = cl.centers.tolist()
 
         ca.results = results
-        # write_clustering_report_fasta(
-        #     f'report_{clustering_type}_{sequence_length}_{num_clusters}.fasta', [sc.sequences[i] for i in cl.centers])
         ca.status = 'SU'
         ca.save()
-    except:
+
+    except Exception as e:
+        print(e)
         ca.status = 'FA'
         ca.save()
 
