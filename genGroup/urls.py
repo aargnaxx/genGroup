@@ -23,7 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('clustering/', include('clustering.urls')),
     path('files/', include('files.urls')),
-    path('results/', include('results.urls')),
     path('preprocess/', include('preprocess.urls')),
     path('', vue_views.test_vue)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

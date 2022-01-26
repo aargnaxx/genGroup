@@ -127,6 +127,8 @@ def run_clustering(analysis_file, sequence_length, clustering_type, num_clusters
         for key in c.keys():
             results[str(key)] = c[key]
 
+        results["centers"] = cl.centers
+
         ca.results = results
         # write_clustering_report_fasta(
         #     f'report_{clustering_type}_{sequence_length}_{num_clusters}.fasta', [sc.sequences[i] for i in cl.centers])

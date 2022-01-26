@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'clustering.apps.ClusteringConfig',
     'files.apps.FilesConfig',
     'preprocess.apps.PreprocessConfig',
-    'results.apps.ResultsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
