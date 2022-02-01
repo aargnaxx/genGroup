@@ -26,7 +26,24 @@
 
     <b-modal v-model="isReportsModalActive">
       <div class="box">
-        <b-table :data="statuses" :columns="columns" :bordered="true"></b-table>
+        <b-table
+          :data="statuses"
+          :columns="columns"
+          :bordered="true"
+          checkable
+          :checkbox-position="left"
+          :checked-rows.sync="checkedRows"
+        >
+          <template #bottom-left>
+            <b-button
+              size="is-medium"
+              icon-left="download"
+              @click="download"
+            >
+              Download
+            </b-button>
+          </template>
+        </b-table>
       </div>
     </b-modal>
   </div>
@@ -40,6 +57,7 @@ import axios from "axios";
 @Component
 export default class Reports extends Vue {
   @Model() private reports: any[] = [];
+  @Model() private checkedRows: any[] = [];
   @Model() private statuses: any[] = [];
   @Model() private selectedId = -1;
   @Model() private isReportsModalActive = false;
@@ -129,6 +147,8 @@ export default class Reports extends Vue {
               element.status = "Analiza se trenutno obavlja";
               break;
           }
+          element.download =
+            '<button @click="console.log(props.id)">Download</button>';
         });
         this.isReportsModalActive = true;
         console.log(response);
@@ -144,6 +164,24 @@ export default class Reports extends Vue {
 
   mounted(): void {
     this.getReports();
+  }
+
+  download() {
+    this.checkedRows.forEach(element => {
+      this.downloadItem({url:'clustering/download/'+element.id,label:element.id+'.fasta'})
+    });
+  }
+
+  downloadItem ({ url, label }) {
+    axios.get(url, { responseType: 'blob' })
+      .then(response => {
+        const blob = new Blob([response.data], { type: 'text/plain' })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = label
+        link.click()
+        URL.revokeObjectURL(link.href)
+      }).catch(console.error)
   }
 }
 </script>

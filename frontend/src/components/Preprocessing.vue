@@ -2,25 +2,41 @@
   <div>
     <section>
       <b-field label="Datoteka za analizu">
-        <b-select placeholder="Odaberi datoteku" expanded v-model="file1">
-          <option v-for="(option, i) in files" :value="option" :key="i">
-            {{ option }}
-          </option>
-        </b-select>
+        <b-autocomplete
+          rounded
+          v-model="file1"
+          :data="filteredFiles"
+          :open-on-focus="true"
+          :keep-first="true"
+          placeholder="Odaberi datoteku"
+          icon="magnify"
+          clearable
+          @select="(option) => (file1 = option)"
+        >
+          <template #empty>No results found</template>
+        </b-autocomplete>
       </b-field>
       <b-field label="Očekivani rezultat">
-        <b-select placeholder="Odaberi datoteku" expanded v-model="file2">
-          <option v-for="(option, i) in files" :value="option" :key="i">
-            {{ option }}
-          </option>
-        </b-select>
+        <b-autocomplete
+          rounded
+          v-model="file2"
+          :data="filteredFiles1"
+          :open-on-focus="true"
+          :keep-first="true"
+          placeholder="Odaberi datoteku"
+          icon="magnify"
+          clearable
+          @select="(option) => (file2 = option)"
+        >
+          <template #empty>No results found</template>
+        </b-autocomplete>
       </b-field>
       <button @click="Preprocess">Preprocess</button>
     </section>
 
     <!-- <canvas id="c" width="550" height="160"></canvas> -->
     <section v-if="dataReady">
-      <br>
+      <br />
       <table style="display: inline-table">
         <tr>
           <th></th>
@@ -78,6 +94,22 @@ export default class Preprocessing extends Vue {
     "#808e9b",
   ];
 
+  get filteredFiles(): string[] {
+    return this.files.filter((option) => {
+      return (
+        option.toString().toLowerCase().indexOf(this.file1.toLowerCase()) >= 0
+      );
+    });
+  }
+
+  get filteredFiles1(): string[] {
+    return this.files.filter((option) => {
+      return (
+        option.toString().toLowerCase().indexOf(this.file2.toLowerCase()) >= 0
+      );
+    });
+  }
+
   private Preprocess(): void {
     const loadingComponent = this.$buefy.loading.open({
       container: null,
@@ -95,7 +127,6 @@ export default class Preprocessing extends Vue {
       timeout: 60000,
     })
       .then((response) => {
-
         var a: string[] = [];
         response.data.distances_between_results.forEach((element: any) => {
           a.push(element[0]);
